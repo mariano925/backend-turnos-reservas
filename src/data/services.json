@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Corte de cabello",
+    "description": "Corte de cabello para adultos",
+    "duration": 30,
+    "price": 5000,
+    "category": "Peluquería",
+    "available": true
+  },
+  {
+    "id": 2,
+    "name": "Barba",
+    "description": "Perfilado y arreglo de barba",
+    "duration": 20,
+    "price": 3000,
+    "category": "Barbería",
+    "available": true
+  },
+  {
+    "id": 3,
+    "name": "Corte y barba",
+    "description": "Corte de cabello más arreglo de barba",
+    "duration": 50,
+    "price": 7000,
+    "category": "Barbería",
+    "available": false
+  }
+]
