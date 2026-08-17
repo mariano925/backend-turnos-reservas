@@ -1,3 +1,6 @@
+// Cargamos y validamos las variables de entorno
+import "./src/config/env.config.js";
+
 // Importamos el manager
 import ServiceManager from "./src/managers/ServiceManager.js";
 
