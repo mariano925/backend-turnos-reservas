@@ -1,21 +1,8 @@
-// Cargamos y validamos las variables de entorno
-import "./src/config/env.config.js";
+import express from "express";
+import servicesRouter from "./src/routes/services.router.js"; // Importa rutas
 
-// Importamos el manager
-import ServiceManager from "./src/managers/ServiceManager.js";
+const app = express();
+app.use(express.json()); // Lee JSON del body
+app.use("/api/services", servicesRouter); // Conecta las rutas
 
-const serviceManager = new ServiceManager();
-
-async function main() {
-
-    // Obtenemos todos los servicios
-    console.log(await serviceManager.getServices());
-
-    // Buscamos un servicio por ID
-    console.log(await serviceManager.getServiceById(2));
-
-    // Buscamos un ID inexistente
-    console.log(await serviceManager.getServiceById(99));
-}
-
-main();
+export default app;

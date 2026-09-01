@@ -12,4 +12,7 @@ for (const variable of requiredEnvVariables) {
     }
 }
 
+export const PORT = process.env.PORT;
+export const NODE_ENV = process.env.NODE_ENV;
+
 console.log("Variables de entorno cargadas correctamente.");
