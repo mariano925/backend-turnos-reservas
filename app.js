@@ -1,8 +1,14 @@
 import express from "express";
-import servicesRouter from "./src/routes/services.router.js"; // Importa rutas
+
+import servicesRouter from "./src/routes/services.router.js";
+import bookingsRouter from "./src/routes/bookings.router.js";
 
 const app = express();
-app.use(express.json()); // Lee JSON del body
-app.use("/api/services", servicesRouter); // Conecta las rutas
+
+app.use(express.json());
+
+app.use("/api/services", servicesRouter);
+app.use("/api/bookings", bookingsRouter);
 
 export default app;
+
