@@ -1,7 +1,7 @@
 import express from "express";
 
-import servicesRouter from "./src/routes/services.router.js";
-import bookingsRouter from "./src/routes/bookings.router.js";
+import servicesRouter from "./routes/services.router.js";
+import bookingsRouter from "./routes/bookings.router.js";
 
 const app = express();
 
@@ -11,4 +11,3 @@ app.use("/api/services", servicesRouter);
 app.use("/api/bookings", bookingsRouter);
 
 export default app;
-
