@@ -4,38 +4,54 @@ const serviceManager = new ServiceManager();
 
 // Obtiene todos los servicios
 export const getServices = async (req, res) => {
-    const { category, available } = req.query;
+    try {
+        const { category, available } = req.query;
 
-    const services = await serviceManager.getServices();
+        const services = await serviceManager.getServices();
 
-    const filteredServices = category
-        ? services.filter(service => service.category === category)
-        : services;
+        const filteredServices = category
+            ? services.filter(service => service.category === category)
+            : services;
 
-    let result = filteredServices;
+        let result = filteredServices;
 
-    if (available !== undefined) {
-        result = result.filter(
-            service => service.available === (available === "true")
-        );
+        if (available !== undefined) {
+            result = result.filter(
+                service => service.available === (available === "true")
+            );
+        }
+
+        res.status(200).json(result);
+
+    // Controla errores internos
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
     }
-
-    res.status(200).json(result);
 };
 
 // Busca un servicio por ID
 export const getServiceById = async (req, res) => {
-    const id = Number(req.params.sid);
+    try {
+        const id = Number(req.params.sid);
 
-    const service = await serviceManager.getServiceById(id);
+        const service = await serviceManager.getServiceById(id);
 
-    if (!service) {
-        return res.status(404).json({
-            error: "Servicio no encontrado"
+        if (!service) {
+            return res.status(404).json({
+                error: "Servicio no encontrado"
+            });
+        }
+
+        res.status(200).json(service);
+
+    // Controla errores internos
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
         });
     }
-
-    res.status(200).json(service);
 };
 
 // Crea un servicio
@@ -45,7 +61,13 @@ export const createService = async (req, res) => {
 
         res.status(201).json(newService);
     } catch (error) {
-        res.status(400).json({
+        if (error.message.startsWith("Falta el campo:")) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+
+        res.status(500).json({
             error: error.message
         });
     }
@@ -63,7 +85,14 @@ export const updateService = async (req, res) => {
 
         res.status(200).json(updatedService);
     } catch (error) {
-        res.status(404).json({
+        // Diferencia recurso inexistente de error interno
+        if (error.message === "Servicio no encontrado") {
+            return res.status(404).json({
+                error: error.message
+            });
+        }
+
+        res.status(500).json({
             error: error.message
         });
     }
@@ -78,8 +107,16 @@ export const deleteService = async (req, res) => {
 
         res.status(200).json(deletedService);
     } catch (error) {
-        res.status(404).json({
+        // Diferencia recurso inexistente de error interno
+        if (error.message === "Servicio no encontrado") {
+            return res.status(404).json({
+                error: error.message
+            });
+        }
+
+        res.status(500).json({
             error: error.message
         });
     }
 };
+
