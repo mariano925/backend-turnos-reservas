@@ -1,43 +1,29 @@
-// Importamos herramientas para archivos
+// Herramientas para archivos
 import { readFile, writeFile } from "fs/promises";
 
-// Ruta del archivo JSON
+// Ruta del JSON
 const filePath = new URL("../data/services.json", import.meta.url);
 
-// Administramos los servicios
-class ServiceManager {
+// DAO de servicios
+class ServicesDAO {
 
-    // Leemos los servicios
-    async getServices() {
+    // Lee todos los servicios
+    async getAll() {
         const data = await readFile(filePath, "utf-8");
+
         return JSON.parse(data);
     }
 
-    // Buscamos por ID
-    async getServiceById(id) {
-        const services = await this.getServices();
+    // Busca un servicio por ID
+    async getById(id) {
+        const services = await this.getAll();
 
         return services.find(service => service.id === id) || null;
     }
 
-    // Agregamos un servicio
-    async addService(serviceData) {
-        const requiredFields = [
-            "name",
-            "description",
-            "duration",
-            "price",
-            "category",
-            "available"
-        ];
-
-        for (const field of requiredFields) {
-            if (serviceData[field] === undefined) {
-                throw new Error(`Falta el campo: ${field}`);
-            }
-        }
-
-        const services = await this.getServices();
+    // Crea y guarda un servicio
+    async create(serviceData) {
+        const services = await this.getAll();
 
         const newId = services.length > 0
             ? Math.max(...services.map(service => service.id)) + 1
@@ -58,16 +44,16 @@ class ServiceManager {
         return newService;
     }
 
-    // Actualizamos un servicio
-    async updateService(id, updatedData) {
-        const services = await this.getServices();
+    // Actualiza y guarda un servicio
+    async update(id, updatedData) {
+        const services = await this.getAll();
 
         const serviceIndex = services.findIndex(
             service => service.id === id
         );
 
         if (serviceIndex === -1) {
-            throw new Error("Servicio no encontrado");
+            return null;
         }
 
         const { id: ignoredId, ...dataToUpdate } = updatedData;
@@ -86,16 +72,16 @@ class ServiceManager {
         return services[serviceIndex];
     }
 
-    // Eliminamos un servicio
-    async deleteService(id) {
-        const services = await this.getServices();
+    // Elimina y guarda los cambios
+    async delete(id) {
+        const services = await this.getAll();
 
         const serviceIndex = services.findIndex(
             service => service.id === id
         );
 
         if (serviceIndex === -1) {
-            throw new Error("Servicio no encontrado");
+            return null;
         }
 
         const deletedService = services.splice(serviceIndex, 1);
@@ -109,5 +95,5 @@ class ServiceManager {
     }
 }
 
-// Exportamos la clase
-export default ServiceManager;
+// Exportamos el DAO
+export default ServicesDAO;

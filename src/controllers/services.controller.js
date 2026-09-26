@@ -1,29 +1,16 @@
-import ServiceManager from "../managers/ServiceManager.js";
+// Service de servicios
+import ServicesService from "../services/services.service.js";
 
-const serviceManager = new ServiceManager();
+// Instancia del Service
+const servicesService = new ServicesService();
 
 // Obtiene todos los servicios
 export const getServices = async (req, res) => {
     try {
-        const { category, available } = req.query;
+        const services = await servicesService.getServices(req.query);
 
-        const services = await serviceManager.getServices();
+        res.status(200).json(services);
 
-        const filteredServices = category
-            ? services.filter(service => service.category === category)
-            : services;
-
-        let result = filteredServices;
-
-        if (available !== undefined) {
-            result = result.filter(
-                service => service.available === (available === "true")
-            );
-        }
-
-        res.status(200).json(result);
-
-    // Controla errores internos
     } catch (error) {
         res.status(500).json({
             error: error.message
@@ -36,7 +23,7 @@ export const getServiceById = async (req, res) => {
     try {
         const id = Number(req.params.sid);
 
-        const service = await serviceManager.getServiceById(id);
+        const service = await servicesService.getServiceById(id);
 
         if (!service) {
             return res.status(404).json({
@@ -46,7 +33,6 @@ export const getServiceById = async (req, res) => {
 
         res.status(200).json(service);
 
-    // Controla errores internos
     } catch (error) {
         res.status(500).json({
             error: error.message
@@ -57,9 +43,10 @@ export const getServiceById = async (req, res) => {
 // Crea un servicio
 export const createService = async (req, res) => {
     try {
-        const newService = await serviceManager.addService(req.body);
+        const newService = await servicesService.createService(req.body);
 
         res.status(201).json(newService);
+
     } catch (error) {
         if (error.message.startsWith("Falta el campo:")) {
             return res.status(400).json({
@@ -78,14 +65,14 @@ export const updateService = async (req, res) => {
     try {
         const id = Number(req.params.sid);
 
-        const updatedService = await serviceManager.updateService(
+        const updatedService = await servicesService.updateService(
             id,
             req.body
         );
 
         res.status(200).json(updatedService);
+
     } catch (error) {
-        // Diferencia recurso inexistente de error interno
         if (error.message === "Servicio no encontrado") {
             return res.status(404).json({
                 error: error.message
@@ -103,11 +90,11 @@ export const deleteService = async (req, res) => {
     try {
         const id = Number(req.params.sid);
 
-        const deletedService = await serviceManager.deleteService(id);
+        const deletedService = await servicesService.deleteService(id);
 
         res.status(200).json(deletedService);
+
     } catch (error) {
-        // Diferencia recurso inexistente de error interno
         if (error.message === "Servicio no encontrado") {
             return res.status(404).json({
                 error: error.message
@@ -119,4 +106,3 @@ export const deleteService = async (req, res) => {
         });
     }
 };
-
