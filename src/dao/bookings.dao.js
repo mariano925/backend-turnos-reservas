@@ -1,73 +1,31 @@
-// Herramientas para archivos
-import { readFile, writeFile } from "fs/promises";
-
-// Ruta del JSON
-const filePath = new URL("../data/bookings.json", import.meta.url);
+// Modelo de reservas
+import Booking from "../models/booking.model.js";
 
 // DAO de reservas
 class BookingsDAO {
 
-    // Lee todas las reservas
+    // Obtiene todas las reservas
     async getAll() {
-        const data = await readFile(filePath, "utf-8");
-
-        return JSON.parse(data);
+        return await Booking.find().lean();
     }
 
     // Busca una reserva por ID
     async getById(id) {
-        const bookings = await this.getAll();
-
-        return bookings.find(booking => booking.id === id) || null;
+        return await Booking.findById(id).lean();
     }
 
-    // Crea y guarda una reserva
+    // Crea una reserva
     async create(bookingData) {
-        const bookings = await this.getAll();
-
-        const newId = bookings.length > 0
-            ? Math.max(...bookings.map(booking => booking.id)) + 1
-            : 1;
-
-        const newBooking = {
-            id: newId,
-            ...bookingData
-        };
-
-        bookings.push(newBooking);
-
-        await writeFile(
-            filePath,
-            JSON.stringify(bookings, null, 2)
-        );
-
-        return newBooking;
+        return await Booking.create(bookingData);
     }
 
-    // Actualiza y guarda una reserva
+    // Actualiza una reserva
     async update(id, updatedData) {
-        const bookings = await this.getAll();
-
-        const bookingIndex = bookings.findIndex(
-            booking => booking.id === id
-        );
-
-        if (bookingIndex === -1) {
-            return null;
-        }
-
-        bookings[bookingIndex] = {
-            ...bookings[bookingIndex],
-            ...updatedData,
-            id
-        };
-
-        await writeFile(
-            filePath,
-            JSON.stringify(bookings, null, 2)
-        );
-
-        return bookings[bookingIndex];
+        return await Booking.findByIdAndUpdate(
+            id,
+            updatedData,
+            { new: true }
+        ).lean();
     }
 }
 

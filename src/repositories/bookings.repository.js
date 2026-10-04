@@ -8,6 +8,11 @@ class BookingsRepository {
         this.dao = new BookingsDAO();
     }
 
+    // Obtiene todas las reservas
+    async getAll() {
+        return await this.dao.getAll();
+    }
+
     // Crea una reserva
     async create(bookingData) {
         return await this.dao.create(bookingData);

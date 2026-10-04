@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Variables necesarias
-const requiredEnvVariables = ["PORT", "NODE_ENV"];
+const requiredEnvVariables = ["PORT", "MONGODB_URI"];
 
 // Validamos
 for (const variable of requiredEnvVariables) {
@@ -13,6 +13,6 @@ for (const variable of requiredEnvVariables) {
 }
 
 export const PORT = process.env.PORT;
-export const NODE_ENV = process.env.NODE_ENV;
+export const MONGODB_URI = process.env.MONGODB_URI;
 
 console.log("Variables de entorno cargadas correctamente.");

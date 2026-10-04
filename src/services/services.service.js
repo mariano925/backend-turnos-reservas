@@ -1,15 +1,13 @@
-// Repository de servicios
-import ServicesRepository from "../repositories/services.repository.js";
-
-// Instancia del Repository
-const servicesRepository = new ServicesRepository();
-
 // Lógica de servicios
 class ServicesService {
 
+    constructor(servicesRepository) {
+        this.servicesRepository = servicesRepository;
+    }
+
     // Obtiene y filtra los servicios
     async getServices({ category, available } = {}) {
-        let services = await servicesRepository.getAll();
+        let services = await this.servicesRepository.getAll();
 
         if (category) {
             services = services.filter(
@@ -28,7 +26,7 @@ class ServicesService {
 
     // Busca un servicio por ID
     async getServiceById(id) {
-        return await servicesRepository.getById(id);
+        return await this.servicesRepository.getById(id);
     }
 
     // Valida y crea un servicio
@@ -48,12 +46,12 @@ class ServicesService {
             }
         }
 
-        return await servicesRepository.create(serviceData);
+        return await this.servicesRepository.create(serviceData);
     }
 
     // Actualiza un servicio
     async updateService(id, updatedData) {
-        const updatedService = await servicesRepository.update(
+        const updatedService = await this.servicesRepository.update(
             id,
             updatedData
         );
@@ -67,7 +65,7 @@ class ServicesService {
 
     // Elimina un servicio
     async deleteService(id) {
-        const deletedService = await servicesRepository.delete(id);
+        const deletedService = await this.servicesRepository.delete(id);
 
         if (!deletedService) {
             throw new Error("Servicio no encontrado");

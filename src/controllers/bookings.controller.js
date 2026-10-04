@@ -1,8 +1,16 @@
 // Service de reservas
 import BookingsService from "../services/bookings.service.js";
+import BookingsRepository from "../repositories/bookings.repository.js";
+import ServicesRepository from "../repositories/services.repository.js";
 
-// Instancia del Service
-const bookingsService = new BookingsService();
+// Instancias
+const bookingsRepository = new BookingsRepository();
+const servicesRepository = new ServicesRepository();
+
+const bookingsService = new BookingsService(
+    bookingsRepository,
+    servicesRepository
+);
 
 // Crea una reserva
 export const createBooking = async (req, res) => {
@@ -12,7 +20,13 @@ export const createBooking = async (req, res) => {
         res.status(201).json(newBooking);
 
     } catch (error) {
-        res.status(400).json({
+        if (error.message.startsWith("Falta el campo:")) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+
+        res.status(500).json({
             error: error.message
         });
     }
@@ -21,7 +35,7 @@ export const createBooking = async (req, res) => {
 // Busca una reserva por ID
 export const getBookingById = async (req, res) => {
     try {
-        const id = Number(req.params.bid);
+        const id = req.params.bid;
 
         const booking = await bookingsService.getBookingById(id);
 
@@ -34,6 +48,12 @@ export const getBookingById = async (req, res) => {
         res.status(200).json(booking);
 
     } catch (error) {
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                error: "ID de reserva inválido"
+            });
+        }
+
         res.status(500).json({
             error: error.message
         });
@@ -43,8 +63,8 @@ export const getBookingById = async (req, res) => {
 // Agrega un servicio a una reserva
 export const addServiceToBooking = async (req, res) => {
     try {
-        const bookingId = Number(req.params.bid);
-        const serviceId = Number(req.params.sid);
+        const bookingId = req.params.bid;
+        const serviceId = req.params.sid;
 
         const updatedBooking =
             await bookingsService.addServiceToBooking(
@@ -55,6 +75,12 @@ export const addServiceToBooking = async (req, res) => {
         res.status(200).json(updatedBooking);
 
     } catch (error) {
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                error: "ID de reserva o servicio inválido"
+            });
+        }
+
         if (
             error.message === "Reserva no encontrada" ||
             error.message === "Servicio no encontrado"
@@ -69,3 +95,4 @@ export const addServiceToBooking = async (req, res) => {
         });
     }
 };
+

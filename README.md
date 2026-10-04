@@ -1,6 +1,6 @@
 # Backend de Turnos y Reservas
 
-API REST desarrollada con **Node.js, Express, ESM, dotenv y FileSystem (`fs/promises`)** para gestionar servicios y reservas mediante archivos JSON.
+API REST desarrollada con **Node.js, Express, ESM, dotenv y Mongoose** para gestionar servicios y reservas mediante **MongoDB Atlas**.
 
 ## Arquitectura
 
@@ -17,16 +17,12 @@ Repository
    ↓
 DAO
    ↓
-JSON
+Mongoose
+   ↓
+MongoDB Atlas
 ```
 
-Cada capa tiene una responsabilidad específica y permite mantener separada la lógica de la aplicación de la persistencia.
-
-* **Routes:** definen los endpoints.
-* **Controllers:** gestionan las solicitudes y respuestas HTTP.
-* **Services:** contienen la lógica de negocio.
-* **Repositories:** actúan como intermediarios entre los services y los DAO.
-* **DAO:** gestiona directamente la persistencia en archivos JSON.
+Cada capa tiene una responsabilidad específica, separando la lógica de negocio de la persistencia.
 
 ## Estructura
 
@@ -34,18 +30,16 @@ Cada capa tiene una responsabilidad específica y permite mantener separada la l
 src/
 ├── config/
 ├── controllers/
-├── services/
-├── repositories/
 ├── dao/
+├── models/
+├── repositories/
 ├── routes/
-├── data/
+├── services/
 ├── app.js
 └── server.js
 ```
 
 ## Servicios
-
-Endpoints disponibles:
 
 | Método | Ruta                 | Descripción           |
 | ------ | -------------------- | --------------------- |
@@ -55,11 +49,9 @@ Endpoints disponibles:
 | PUT    | `/api/services/:sid` | Actualiza un servicio |
 | DELETE | `/api/services/:sid` | Elimina un servicio   |
 
-También permite filtrar servicios mediante `category` y `available`.
+Permite filtrar por `category` y `available`.
 
 ## Reservas
-
-Endpoints disponibles:
 
 | Método | Ruta                               | Descripción         |
 | ------ | ---------------------------------- | ------------------- |
@@ -67,41 +59,40 @@ Endpoints disponibles:
 | GET    | `/api/bookings/:bid`               | Obtiene una reserva |
 | POST   | `/api/bookings/:bid/services/:sid` | Agrega un servicio  |
 
-Al agregar un servicio que ya existe en una reserva, se incrementa su cantidad.
+Los servicios asociados a una reserva utilizan referencias `ObjectId` y almacenan su cantidad.
+
+## Modelos
+
+El proyecto cuenta con tres modelos de Mongoose:
+
+* `service.model.js`
+* `booking.model.js`
+* `message.model.js`
+
+El modelo `Message` queda preparado para futuras funcionalidades.
 
 ## Persistencia
 
-Los datos se almacenan en:
+La persistencia fue migrada de **FileSystem/JSON a MongoDB Atlas** utilizando Mongoose.
 
-```text
-src/data/services.json
-src/data/bookings.json
-```
-
-La lectura y escritura de los archivos se realiza desde la capa DAO mediante `fs/promises`.
+Los archivos JSON de la etapa anterior fueron eliminados.
 
 ## Variables de entorno
 
-El proyecto utiliza un archivo `.env` basado en `.env.example`.
+El proyecto utiliza `.env` y `.env.example`.
 
 ```env
 PORT=8080
 NODE_ENV=development
+MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/Backend1-Mariano
 ```
 
 El archivo `.env` no se incluye en el repositorio.
 
 ## Instalación
 
-Instalar las dependencias:
-
 ```bash
 npm install
-```
-
-Iniciar el servidor:
-
-```bash
 npm start
 ```
 
@@ -117,10 +108,5 @@ http://localhost:8080
 * Express
 * ESM
 * dotenv
-* FileSystem
-* JSON
-* API REST
-
-## Estado del proyecto
-
-API REST refactorizada con arquitectura de **Services, Repository y DAO**, manteniendo los endpoints existentes y separando la lógica de negocio de la persistencia.
+* Mongoose
+* MongoDB Atlas

@@ -1,8 +1,10 @@
 // Service de servicios
 import ServicesService from "../services/services.service.js";
+import ServicesRepository from "../repositories/services.repository.js";
 
-// Instancia del Service
-const servicesService = new ServicesService();
+// Instancias
+const servicesRepository = new ServicesRepository();
+const servicesService = new ServicesService(servicesRepository);
 
 // Obtiene todos los servicios
 export const getServices = async (req, res) => {
@@ -21,7 +23,7 @@ export const getServices = async (req, res) => {
 // Busca un servicio por ID
 export const getServiceById = async (req, res) => {
     try {
-        const id = Number(req.params.sid);
+        const id = req.params.sid;
 
         const service = await servicesService.getServiceById(id);
 
@@ -34,6 +36,12 @@ export const getServiceById = async (req, res) => {
         res.status(200).json(service);
 
     } catch (error) {
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                error: "ID de servicio inválido"
+            });
+        }
+
         res.status(500).json({
             error: error.message
         });
@@ -63,7 +71,7 @@ export const createService = async (req, res) => {
 // Actualiza un servicio
 export const updateService = async (req, res) => {
     try {
-        const id = Number(req.params.sid);
+        const id = req.params.sid;
 
         const updatedService = await servicesService.updateService(
             id,
@@ -73,6 +81,12 @@ export const updateService = async (req, res) => {
         res.status(200).json(updatedService);
 
     } catch (error) {
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                error: "ID de servicio inválido"
+            });
+        }
+
         if (error.message === "Servicio no encontrado") {
             return res.status(404).json({
                 error: error.message
@@ -88,13 +102,19 @@ export const updateService = async (req, res) => {
 // Elimina un servicio
 export const deleteService = async (req, res) => {
     try {
-        const id = Number(req.params.sid);
+        const id = req.params.sid;
 
         const deletedService = await servicesService.deleteService(id);
 
         res.status(200).json(deletedService);
 
     } catch (error) {
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                error: "ID de servicio inválido"
+            });
+        }
+
         if (error.message === "Servicio no encontrado") {
             return res.status(404).json({
                 error: error.message
@@ -106,3 +126,4 @@ export const deleteService = async (req, res) => {
         });
     }
 };
+

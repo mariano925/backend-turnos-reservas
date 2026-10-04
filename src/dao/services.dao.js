@@ -1,97 +1,36 @@
-// Herramientas para archivos
-import { readFile, writeFile } from "fs/promises";
-
-// Ruta del JSON
-const filePath = new URL("../data/services.json", import.meta.url);
+// Modelo de servicios
+import Service from "../models/service.model.js";
 
 // DAO de servicios
 class ServicesDAO {
 
-    // Lee todos los servicios
+    // Obtiene todos los servicios
     async getAll() {
-        const data = await readFile(filePath, "utf-8");
-
-        return JSON.parse(data);
+        return await Service.find().lean();
     }
 
     // Busca un servicio por ID
     async getById(id) {
-        const services = await this.getAll();
-
-        return services.find(service => service.id === id) || null;
+        return await Service.findById(id).lean();
     }
 
-    // Crea y guarda un servicio
+    // Crea un servicio
     async create(serviceData) {
-        const services = await this.getAll();
-
-        const newId = services.length > 0
-            ? Math.max(...services.map(service => service.id)) + 1
-            : 1;
-
-        const newService = {
-            id: newId,
-            ...serviceData
-        };
-
-        services.push(newService);
-
-        await writeFile(
-            filePath,
-            JSON.stringify(services, null, 2)
-        );
-
-        return newService;
+        return await Service.create(serviceData);
     }
 
-    // Actualiza y guarda un servicio
+    // Actualiza un servicio
     async update(id, updatedData) {
-        const services = await this.getAll();
-
-        const serviceIndex = services.findIndex(
-            service => service.id === id
-        );
-
-        if (serviceIndex === -1) {
-            return null;
-        }
-
-        const { id: ignoredId, ...dataToUpdate } = updatedData;
-
-        services[serviceIndex] = {
-            ...services[serviceIndex],
-            ...dataToUpdate,
-            id
-        };
-
-        await writeFile(
-            filePath,
-            JSON.stringify(services, null, 2)
-        );
-
-        return services[serviceIndex];
+        return await Service.findByIdAndUpdate(
+            id,
+            updatedData,
+            { new: true }
+        ).lean();
     }
 
-    // Elimina y guarda los cambios
+    // Elimina un servicio
     async delete(id) {
-        const services = await this.getAll();
-
-        const serviceIndex = services.findIndex(
-            service => service.id === id
-        );
-
-        if (serviceIndex === -1) {
-            return null;
-        }
-
-        const deletedService = services.splice(serviceIndex, 1);
-
-        await writeFile(
-            filePath,
-            JSON.stringify(services, null, 2)
-        );
-
-        return deletedService[0];
+        return await Service.findByIdAndDelete(id).lean();
     }
 }
 

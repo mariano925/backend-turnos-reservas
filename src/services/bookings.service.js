@@ -1,13 +1,10 @@
-// Repositories de reservas y servicios
-import BookingsRepository from "../repositories/bookings.repository.js";
-import ServicesRepository from "../repositories/services.repository.js";
-
-// Instancias de los repositories
-const bookingsRepository = new BookingsRepository();
-const servicesRepository = new ServicesRepository();
-
 // Lógica de reservas
 class BookingsService {
+
+    constructor(bookingsRepository, servicesRepository) {
+        this.bookingsRepository = bookingsRepository;
+        this.servicesRepository = servicesRepository;
+    }
 
     // Valida y crea una reserva
     async createBooking(bookingData) {
@@ -30,26 +27,26 @@ class BookingsService {
             services: []
         };
 
-        return await bookingsRepository.create(newBooking);
+        return await this.bookingsRepository.create(newBooking);
     }
 
     // Busca una reserva por ID
     async getBookingById(id) {
-        return await bookingsRepository.getById(id);
+        return await this.bookingsRepository.getById(id);
     }
 
     // Agrega un servicio a una reserva
     async addServiceToBooking(bookingId, serviceId) {
 
         // Busca la reserva
-        const booking = await bookingsRepository.getById(bookingId);
+        const booking = await this.bookingsRepository.getById(bookingId);
 
         if (!booking) {
             throw new Error("Reserva no encontrada");
         }
 
         // Verifica que el servicio exista
-        const service = await servicesRepository.getById(serviceId);
+        const service = await this.servicesRepository.getById(serviceId);
 
         if (!service) {
             throw new Error("Servicio no encontrado");
@@ -57,16 +54,13 @@ class BookingsService {
 
         // Busca si el servicio ya está agregado
         const serviceIndex = booking.services.findIndex(
-            item => item.service === serviceId
+            item => item.service.toString() === serviceId.toString()
         );
 
         if (serviceIndex !== -1) {
-
             // Aumenta la cantidad
             booking.services[serviceIndex].quantity += 1;
-
         } else {
-
             // Agrega el servicio
             booking.services.push({
                 service: serviceId,
@@ -75,7 +69,7 @@ class BookingsService {
         }
 
         // Guarda la reserva actualizada
-        return await bookingsRepository.update(
+        return await this.bookingsRepository.update(
             bookingId,
             booking
         );
