@@ -1,0 +1,45 @@
+<section class="page-section">
+    <h2>Nuestros servicios</h2>
+    <p class="page-description">
+        Consultá los servicios disponibles, sus precios y duración.
+    </p>
+
+    <!-- Listado actualizado por Socket.io -->
+    <div id="services-list" class="services-grid">
+        {{#each services}}
+            <article class="service-card">
+                <h3>{{this.name}}</h3>
+                <p>{{this.description}}</p>
+
+                <dl class="service-details">
+                    <div>
+                        <dt>Duración</dt>
+                        <dd>{{this.duration}} minutos</dd>
+                    </div>
+                    <div>
+                        <dt>Precio</dt>
+                        <dd>${{this.price}}</dd>
+                    </div>
+                    <div>
+                        <dt>Categoría</dt>
+                        <dd>{{this.category}}</dd>
+                    </div>
+                    <div>
+                        <dt>Disponibilidad</dt>
+                        <dd>
+                            {{#if this.available}}
+                                Disponible
+                            {{else}}
+                                No disponible
+                            {{/if}}
+                        </dd>
+                    </div>
+                </dl>
+            </article>
+        {{else}}
+            <p id="empty-services" class="empty-message">
+                No hay servicios registrados.
+            </p>
+        {{/each}}
+    </div>
+</section>

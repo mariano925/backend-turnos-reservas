@@ -1,17 +1,20 @@
-
 import Booking from "../models/booking.model.js";
 
 // DAO de reservas
 class BookingsDAO {
 
-    // Obtiene todas las reservas
+    // Obtiene todas las reservas con sus servicios asociados
     async getAll() {
-        return await Booking.find().lean();
+        return await Booking.find()
+            .populate("services.service")
+            .lean();
     }
 
-    // Busca una reserva por ID
+    // Busca una reserva por ID con sus servicios asociados
     async getById(id) {
-        return await Booking.findById(id).lean();
+        return await Booking.findById(id)
+            .populate("services.service")
+            .lean();
     }
 
     // Crea una reserva
@@ -25,7 +28,9 @@ class BookingsDAO {
             id,
             updatedData,
             { new: true, runValidators: true }
-        ).lean();
+        )
+            .populate("services.service")
+            .lean();
     }
 }
 

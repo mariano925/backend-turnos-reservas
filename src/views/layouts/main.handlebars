@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{title}} | Barbería</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Encabezado y navegación -->
+    <header class="site-header">
+        <div class="container">
+            <h1>Barbería</h1>
+            <nav aria-label="Navegación principal">
+                <a href="/views/services">Servicios</a>
+                <a href="/views/availability">Disponibilidad</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido dinámico de cada vista -->
+    <main class="container">
+        {{{body}}}
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>Gestión de servicios y reservas</p>
+        </div>
+    </footer>
+
+    <!-- Cliente de Socket.io y eventos en tiempo real -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/socket.js"></script>
+</body>
+</html>

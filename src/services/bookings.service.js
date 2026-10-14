@@ -1,10 +1,14 @@
-
- // Lógica de reservas
+// Lógica de reservas
 class BookingsService {
 
     constructor(bookingsRepository, servicesRepository) {
         this.bookingsRepository = bookingsRepository;
         this.servicesRepository = servicesRepository;
+    }
+
+    // Obtiene todas las reservas
+    async getAllBookings() {
+        return await this.bookingsRepository.getAll();
     }
 
     // Valida y crea una reserva

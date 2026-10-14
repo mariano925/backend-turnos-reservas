@@ -1,0 +1,294 @@
+/* ===== Variables y estilos generales ===== */
+:root {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #202820;
+    background: #f4f6f3;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+
+    --color-primary: #244c3a;
+    --color-primary-dark: #183729;
+    --color-accent: #c8a66a;
+    --color-text: #202820;
+    --color-muted: #657168;
+    --color-border: #dfe5df;
+    --color-surface: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.6;
+}
+
+.container {
+    width: min(1100px, calc(100% - 40px));
+    margin-inline: auto;
+}
+
+/* ===== Encabezado y navegación ===== */
+.site-header {
+    background: var(--color-primary-dark);
+    color: #ffffff;
+    border-bottom: 4px solid var(--color-accent);
+}
+
+.site-header .container {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.site-header h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    letter-spacing: 0.04em;
+}
+
+.site-header nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+}
+
+.site-header nav a {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.site-header nav a:hover {
+    color: var(--color-accent);
+}
+
+.site-header nav a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 5px;
+}
+
+/* ===== Contenido de las páginas ===== */
+main.container {
+    flex: 1;
+    padding-block: 40px 56px;
+}
+
+.page-section h2 {
+    margin: 0 0 8px;
+    color: var(--color-primary-dark);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    line-height: 1.25;
+}
+
+.page-description {
+    margin: 0 0 28px;
+    color: var(--color-muted);
+}
+
+/* ===== Tarjetas de servicios ===== */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.service-card,
+.booking-card {
+    min-width: 0;
+    padding: 24px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgb(24 55 41 / 5%);
+}
+
+.service-card {
+    border-top: 4px solid var(--color-accent);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgb(24 55 41 / 10%);
+}
+
+.service-card h3,
+.booking-card h3 {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.2rem;
+    overflow-wrap: anywhere;
+}
+
+.service-card > p {
+    color: var(--color-muted);
+    overflow-wrap: anywhere;
+}
+
+.service-details,
+.booking-details {
+    display: grid;
+    gap: 12px;
+    margin: 22px 0 0;
+}
+
+.service-details > div,
+.booking-details > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.service-details dt,
+.booking-details dt {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+}
+
+.service-details dd,
+.booking-details dd {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* ===== Listado de reservas ===== */
+.bookings-list {
+    display: grid;
+    gap: 20px;
+}
+
+.booking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: #edf0ed;
+    color: #344239;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background: #fff2d8;
+    color: #79551a;
+}
+
+.status-confirmed {
+    background: #dff3e5;
+    color: #205c35;
+}
+
+.status-cancelled {
+    background: #fbe5e3;
+    color: #8a3029;
+}
+
+.booking-card h4 {
+    margin: 24px 0 8px;
+    color: var(--color-primary-dark);
+}
+
+.booking-services {
+    padding-left: 22px;
+    overflow-wrap: anywhere;
+}
+
+/* ===== Estados vacíos ===== */
+.empty-message {
+    grid-column: 1 / -1;
+    padding: 28px;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: 12px;
+    color: var(--color-muted);
+    text-align: center;
+}
+
+/* ===== Pie de página ===== */
+.site-footer {
+    padding: 18px 0;
+    background: var(--color-primary-dark);
+    color: #e4eae5;
+    text-align: center;
+}
+
+.site-footer p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* ===== Adaptación a pantallas medianas ===== */
+@media (max-width: 900px) {
+    .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ===== Adaptación a celulares ===== */
+@media (max-width: 600px) {
+    .container {
+        width: calc(100% - 28px);
+    }
+
+    .site-header .container {
+        min-height: auto;
+        padding-block: 20px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .site-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .site-header nav {
+        gap: 10px 20px;
+    }
+
+    main.container {
+        padding-block: 28px 40px;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-card,
+    .booking-card {
+        padding: 20px;
+    }
+}
+
+/* ===== Respeta las preferencias de movimiento ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}

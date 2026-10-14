@@ -1,0 +1,59 @@
+<section class="page-section">
+    <h2>Disponibilidad de turnos</h2>
+    <p class="page-description">
+        Consultá las reservas registradas y sus estados actuales.
+    </p>
+
+    <!-- Reservas registradas en MongoDB -->
+    <div class="bookings-list">
+        {{#each bookings}}
+            <article class="booking-card">
+                <div class="booking-header">
+                    <h3>{{this.clientName}}</h3>
+                    <span class="status-badge status-{{this.status}}">
+                        {{this.status}}
+                    </span>
+                </div>
+
+                <dl class="booking-details">
+                    <div>
+                        <dt>Correo</dt>
+                        <dd>{{this.clientEmail}}</dd>
+                    </div>
+                    <div>
+                        <dt>Fecha</dt>
+                        <dd>{{this.date}}</dd>
+                    </div>
+                    <div>
+                        <dt>Hora</dt>
+                        <dd>{{this.time}}</dd>
+                    </div>
+                </dl>
+
+                <!-- Servicios asociados a la reserva -->
+                <h4>Servicios solicitados</h4>
+
+                {{#if this.services.length}}
+                    <ul class="booking-services">
+                        {{#each this.services}}
+                            <li>
+                                {{#if this.service}}
+                                    {{this.service.name}}
+                                {{else}}
+                                    Servicio no disponible
+                                {{/if}}
+                                — Cantidad: {{this.quantity}}
+                            </li>
+                        {{/each}}
+                    </ul>
+                {{else}}
+                    <p>Esta reserva todavía no tiene servicios asociados.</p>
+                {{/if}}
+            </article>
+        {{else}}
+            <p class="empty-message">
+                No hay reservas registradas.
+            </p>
+        {{/each}}
+    </div>
+</section>
