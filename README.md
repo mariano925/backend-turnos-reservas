@@ -1,11 +1,12 @@
-
 # Backend de Turnos y Reservas
 
-API REST desarrollada con **Node.js, Express, ESM, dotenv y Mongoose** para gestionar servicios y reservas mediante **MongoDB Atlas**.
+API REST desarrollada con **Node.js, Express, ECMAScript Modules (ESM), dotenv y Mongoose** para gestionar servicios y reservas mediante **MongoDB Atlas**.
+
+El proyecto incorpora vistas renderizadas con **Express Handlebars** y comunicación en tiempo real con **Socket.io**, manteniendo la API REST y la arquitectura en capas.
 
 ## Arquitectura
 
-El proyecto utiliza una arquitectura en capas:
+El proyecto utiliza una arquitectura en capas para separar las responsabilidades de cada componente:
 
 ```text
 Router
@@ -23,44 +24,146 @@ Mongoose
 MongoDB Atlas
 ```
 
-Cada capa tiene una responsabilidad específica, separando la lógica de negocio de la persistencia.
+Cada capa tiene una responsabilidad específica:
 
-## Estructura
+- **Router:** define las rutas y los endpoints disponibles.
+- **Controller:** recibe las solicitudes HTTP y coordina las respuestas.
+- **Service:** gestiona la lógica de negocio.
+- **Repository:** centraliza el acceso a los datos desde la capa de servicios.
+- **DAO:** implementa las operaciones de persistencia.
+- **Mongoose:** define los modelos y permite interactuar con MongoDB Atlas.
+
+Las vistas web reutilizan las capas de servicios y repositorios para obtener los datos que se muestran en las plantillas.
+
+Socket.io permite comunicar al navegador los cambios realizados en los servicios, sin necesidad de recargar la página.
+
+## Estructura del proyecto
 
 ```text
-src/
-├── config/
-├── controllers/
-├── dao/
-├── models/
-├── repositories/
-├── routes/
-├── services/
-├── app.js
-└── server.js
+Backend1-Mariano/
+├── public/
+│   ├── css/
+│   │   └── styles.css
+│   └── js/
+│       └── socket.js
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   │   ├── services.controller.js
+│   │   └── views.controller.js
+│   ├── dao/
+│   ├── models/
+│   ├── repositories/
+│   ├── routes/
+│   │   ├── services.router.js
+│   │   ├── bookings.router.js
+│   │   └── views.router.js
+│   ├── services/
+│   ├── views/
+│   │   ├── layouts/
+│   │   │   └── main.handlebars
+│   │   ├── services.handlebars
+│   │   └── availability.handlebars
+│   ├── app.js
+│   └── server.js
+├── .env.example
+├── .gitignore
+├── package.json
+├── package-lock.json
+└── README.md
 ```
 
-## Servicios
+## API REST
+
+### Servicios
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/services` | Lista los servicios |
-| GET | `/api/services/:sid` | Obtiene un servicio por ID |
-| POST | `/api/services` | Crea un servicio |
-| PUT | `/api/services/:sid` | Actualiza un servicio |
-| DELETE | `/api/services/:sid` | Elimina un servicio |
+| GET | `/api/services` | Lista los servicios. |
+| GET | `/api/services/:sid` | Obtiene un servicio por ID. |
+| POST | `/api/services` | Crea un servicio. |
+| PUT | `/api/services/:sid` | Actualiza un servicio. |
+| DELETE | `/api/services/:sid` | Elimina un servicio. |
 
 La API permite filtrar los servicios mediante los parámetros `category` y `available`.
 
-## Reservas
+### Reservas
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/api/bookings` | Crea una reserva |
-| GET | `/api/bookings/:bid` | Obtiene una reserva por ID |
-| POST | `/api/bookings/:bid/services/:sid` | Agrega un servicio a una reserva |
+| POST | `/api/bookings` | Crea una reserva. |
+| GET | `/api/bookings/:bid` | Obtiene una reserva por ID. |
+| POST | `/api/bookings/:bid/services/:sid` | Agrega un servicio a una reserva. |
 
 Los servicios asociados a una reserva utilizan referencias `ObjectId` y almacenan la cantidad solicitada de cada servicio.
+
+## Vistas web con Handlebars
+
+El proyecto incorpora **Express Handlebars** como motor de plantillas para renderizar páginas HTML desde el servidor.
+
+Las vistas consultan los datos reales almacenados en MongoDB Atlas mediante la arquitectura en capas.
+
+### Rutas disponibles
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/views/services` | Muestra los servicios registrados. |
+| GET | `/views/availability` | Muestra las reservas y sus servicios asociados. |
+
+### Vista de servicios
+
+La vista `/views/services` muestra la información de los servicios registrados:
+
+- Nombre.
+- Descripción.
+- Duración.
+- Precio.
+- Categoría.
+- Disponibilidad.
+
+### Vista de reservas
+
+La vista `/views/availability` muestra la información de las reservas:
+
+- Nombre del cliente.
+- Correo electrónico.
+- Fecha y hora del turno.
+- Estado de la reserva.
+- Servicios asociados y sus cantidades.
+
+Los servicios asociados se obtienen mediante referencias de Mongoose y se incorporan a las consultas para mostrar sus datos en la vista.
+
+Las plantillas utilizan los datos obtenidos desde la base de datos, sin depender de registros escritos directamente en el HTML.
+
+## Comunicación en tiempo real con Socket.io
+
+El proyecto utiliza **Socket.io** para comunicar los cambios realizados en los servicios entre el servidor y los navegadores conectados.
+
+Cuando se crea, actualiza o elimina un servicio mediante la API REST, el servidor obtiene la lista actualizada y emite el evento `servicesUpdated`.
+
+El archivo `public/js/socket.js` escucha este evento y actualiza la lista de servicios mostrada en el navegador, sin necesidad de recargar la página.
+
+### Flujo de actualización
+
+```text
+Solicitud HTTP
+      ↓
+Controller de servicios
+      ↓
+Service → Repository → DAO
+      ↓
+MongoDB Atlas
+      ↓
+Operación exitosa
+      ↓
+Evento servicesUpdated
+      ↓
+Socket.io
+      ↓
+Actualización de la vista en el navegador
+```
+
+La comunicación en tiempo real complementa los endpoints REST existentes, sin reemplazarlos ni modificar su función principal.
 
 ## Modelos
 
@@ -128,33 +231,77 @@ La URI de conexión mostrada es un ejemplo ilustrativo. Debe reemplazarse por la
 
 El archivo `.env` contiene la configuración local y no debe incluirse en el repositorio. El archivo `.env.example` permite identificar las variables necesarias sin exponer credenciales reales.
 
+**Importante:** no publiques credenciales reales ni la URI privada de conexión a MongoDB Atlas.
+
 ## Instalación y ejecución
 
-Clonar el repositorio y acceder al directorio del proyecto.
+### Requisitos previos
 
-Instalar las dependencias:
+- Node.js.
+- npm.
+- Una instancia de MongoDB Atlas configurada y accesible.
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/mariano925/backend-turnos-reservas.git
+```
+
+### 2. Acceder al directorio
+
+```bash
+cd backend-turnos-reservas
+```
+
+### 3. Instalar las dependencias
 
 ```bash
 npm install
 ```
 
-Configurar las variables de entorno en el archivo `.env`.
+### 4. Configurar las variables de entorno
 
-Iniciar la API:
+Crear un archivo `.env` en la raíz del proyecto, tomando `.env.example` como referencia.
+
+Completar `MONGODB_URI` con la URI de conexión correspondiente a la instancia de MongoDB Atlas y configurar las demás variables según el entorno.
+
+### 5. Iniciar el servidor
 
 ```bash
 npm start
 ```
 
-La API se ejecuta por defecto en:
+Si la conexión con MongoDB Atlas se establece correctamente, el servidor quedará escuchando en el puerto configurado.
+
+Por defecto:
 
 `http://localhost:8080`
 
+## Acceso a la aplicación
+
+Con el servidor en ejecución, se puede acceder a los siguientes recursos:
+
+| Recurso | URL local |
+|---|---|
+| API de servicios | `http://localhost:8080/api/services` |
+| API de reservas | `http://localhost:8080/api/bookings` |
+| Vista de servicios | `http://localhost:8080/views/services` |
+| Vista de reservas | `http://localhost:8080/views/availability` |
+
+Los endpoints de reservas que requieren identificadores deben completarse con los parámetros correspondientes.
+
 ## Tecnologías
 
-- Node.js
-- Express
-- ECMAScript Modules (ESM)
-- dotenv
-- Mongoose
-- MongoDB Atlas
+- **Node.js:** entorno de ejecución de JavaScript.
+- **Express:** framework para desarrollar la aplicación y la API REST.
+- **ECMAScript Modules (ESM):** sistema de módulos de JavaScript.
+- **dotenv:** configuración mediante variables de entorno.
+- **Mongoose:** modelado de datos y acceso a MongoDB.
+- **MongoDB Atlas:** base de datos en la nube.
+- **Express Handlebars:** motor de plantillas para renderizar vistas.
+- **Socket.io:** comunicación en tiempo real entre el servidor y los clientes.
+- **HTML, CSS y JavaScript:** estructura, presentación e interactividad de las vistas.
+
+## Repositorio
+
+GitHub: [backend-turnos-reservas](https://github.com/mariano925/backend-turnos-reservas)
