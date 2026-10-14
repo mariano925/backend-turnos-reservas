@@ -48,22 +48,34 @@ Backend1-Mariano/
 │       └── socket.js
 ├── src/
 │   ├── config/
+│   │   ├── database.config.js
+│   │   └── env.config.js
 │   ├── controllers/
+│   │   ├── bookings.controller.js
 │   │   ├── services.controller.js
 │   │   └── views.controller.js
 │   ├── dao/
+│   │   ├── bookings.dao.js
+│   │   └── services.dao.js
 │   ├── models/
+│   │   ├── booking.model.js
+│   │   ├── message.model.js
+│   │   └── service.model.js
 │   ├── repositories/
+│   │   ├── bookings.repository.js
+│   │   └── services.repository.js
 │   ├── routes/
-│   │   ├── services.router.js
 │   │   ├── bookings.router.js
+│   │   ├── services.router.js
 │   │   └── views.router.js
 │   ├── services/
+│   │   ├── bookings.service.js
+│   │   └── services.service.js
 │   ├── views/
 │   │   ├── layouts/
 │   │   │   └── main.handlebars
-│   │   ├── services.handlebars
-│   │   └── availability.handlebars
+│   │   ├── availability.handlebars
+│   │   └── services.handlebars
 │   ├── app.js
 │   └── server.js
 ├── .env.example
@@ -273,7 +285,7 @@ npm start
 
 Si la conexión con MongoDB Atlas se establece correctamente, el servidor quedará escuchando en el puerto configurado.
 
-Por defecto:
+Por defecto, la aplicación está disponible en:
 
 `http://localhost:8080`
 
@@ -304,4 +316,4 @@ Los endpoints de reservas que requieren identificadores deben completarse con lo
 
 ## Repositorio
 
-GitHub: [backend-turnos-reservas](https://github.com/mariano925/backend-turnos-reservas)
+[GitHub: backend-turnos-reservas](https://github.com/mariano925/backend-turnos-reservas)
