@@ -1,4 +1,4 @@
-// Service de reservas
+
 import BookingsService from "../services/bookings.service.js";
 import BookingsRepository from "../repositories/bookings.repository.js";
 import ServicesRepository from "../repositories/services.repository.js";
@@ -12,6 +12,11 @@ const bookingsService = new BookingsService(
     servicesRepository
 );
 
+// Identifica errores de datos rechazados por Mongoose.
+const isValidationError = (error) =>
+    error.name === "ValidationError" ||
+    error.name === "CastError";
+
 // Crea una reserva
 export const createBooking = async (req, res) => {
     try {
@@ -20,7 +25,10 @@ export const createBooking = async (req, res) => {
         res.status(201).json(newBooking);
 
     } catch (error) {
-        if (error.message.startsWith("Falta el campo:")) {
+        if (
+            error.message.startsWith("Falta el campo:") ||
+            isValidationError(error)
+        ) {
             return res.status(400).json({
                 error: error.message
             });
@@ -82,6 +90,15 @@ export const addServiceToBooking = async (req, res) => {
         }
 
         if (
+            error.name === "ValidationError" ||
+            error.message === "La cantidad máxima por servicio es 10"
+        ) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+
+        if (
             error.message === "Reserva no encontrada" ||
             error.message === "Servicio no encontrado"
         ) {
@@ -95,4 +112,3 @@ export const addServiceToBooking = async (req, res) => {
         });
     }
 };
-

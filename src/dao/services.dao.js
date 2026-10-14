@@ -1,4 +1,4 @@
-// Modelo de servicios
+
 import Service from "../models/service.model.js";
 
 // DAO de servicios
@@ -19,12 +19,12 @@ class ServicesDAO {
         return await Service.create(serviceData);
     }
 
-    // Actualiza un servicio
+    // Actualiza un servicio y ejecuta las validaciones del esquema
     async update(id, updatedData) {
         return await Service.findByIdAndUpdate(
             id,
             updatedData,
-            { new: true }
+            { new: true, runValidators: true }
         ).lean();
     }
 
@@ -34,5 +34,4 @@ class ServicesDAO {
     }
 }
 
-// Exportamos el DAO
 export default ServicesDAO;

@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema({
@@ -14,12 +15,18 @@ const serviceSchema = new mongoose.Schema({
 
     duration: {
         type: Number,
-        required: true
+        required: [true, "La duración es obligatoria"],
+        // Límites técnicos para evitar duraciones absurdas.
+        min: [5, "La duración mínima es de 5 minutos"],
+        max: [240, "La duración máxima es de 240 minutos"]
     },
 
     price: {
         type: Number,
-        required: true
+        required: [true, "El precio es obligatorio"],
+        // Permite cortesías y limita errores de tipeo.
+        min: [0, "El precio no puede ser negativo"],
+        max: [1000000, "El precio excede el límite técnico permitido"]
     },
 
     category: {

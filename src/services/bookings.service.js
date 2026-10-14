@@ -1,4 +1,5 @@
-// Lógica de reservas
+
+ // Lógica de reservas
 class BookingsService {
 
     constructor(bookingsRepository, servicesRepository) {
@@ -58,10 +59,17 @@ class BookingsService {
         );
 
         if (serviceIndex !== -1) {
+            // Impide superar el máximo permitido por servicio.
+            if (booking.services[serviceIndex].quantity >= 10) {
+                throw new Error(
+                    "La cantidad máxima por servicio es 10"
+                );
+            }
+
             // Aumenta la cantidad
             booking.services[serviceIndex].quantity += 1;
         } else {
-            // Agrega el servicio
+            // Agrega el servicio con la cantidad inicial.
             booking.services.push({
                 service: serviceId,
                 quantity: 1

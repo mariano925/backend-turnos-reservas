@@ -1,10 +1,15 @@
-// Service de servicios
+
 import ServicesService from "../services/services.service.js";
 import ServicesRepository from "../repositories/services.repository.js";
 
 // Instancias
 const servicesRepository = new ServicesRepository();
 const servicesService = new ServicesService(servicesRepository);
+
+// Identifica errores de validación o de formato de datos.
+const isValidationError = (error) =>
+    error.name === "ValidationError" ||
+    error.name === "CastError";
 
 // Obtiene todos los servicios
 export const getServices = async (req, res) => {
@@ -56,7 +61,10 @@ export const createService = async (req, res) => {
         res.status(201).json(newService);
 
     } catch (error) {
-        if (error.message.startsWith("Falta el campo:")) {
+        if (
+            error.message.startsWith("Falta el campo:") ||
+            isValidationError(error)
+        ) {
             return res.status(400).json({
                 error: error.message
             });
@@ -83,7 +91,13 @@ export const updateService = async (req, res) => {
     } catch (error) {
         if (error.name === "CastError") {
             return res.status(400).json({
-                error: "ID de servicio inválido"
+                error: "ID de servicio o datos inválidos"
+            });
+        }
+
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                error: error.message
             });
         }
 
@@ -126,4 +140,3 @@ export const deleteService = async (req, res) => {
         });
     }
 };
-

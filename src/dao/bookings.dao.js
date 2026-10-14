@@ -1,4 +1,4 @@
-// Modelo de reservas
+
 import Booking from "../models/booking.model.js";
 
 // DAO de reservas
@@ -19,15 +19,14 @@ class BookingsDAO {
         return await Booking.create(bookingData);
     }
 
-    // Actualiza una reserva
+    // Actualiza una reserva y ejecuta las validaciones del esquema
     async update(id, updatedData) {
         return await Booking.findByIdAndUpdate(
             id,
             updatedData,
-            { new: true }
+            { new: true, runValidators: true }
         ).lean();
     }
 }
 
-// Exportamos el DAO
 export default BookingsDAO;
