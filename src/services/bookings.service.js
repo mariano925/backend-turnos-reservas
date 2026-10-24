@@ -1,4 +1,5 @@
-// Lógica de reservas
+
+ // Lógica de reservas
 class BookingsService {
 
     constructor(bookingsRepository, servicesRepository) {
@@ -42,7 +43,6 @@ class BookingsService {
 
     // Agrega un servicio a una reserva
     async addServiceToBooking(bookingId, serviceId) {
-
         // Busca la reserva
         const booking = await this.bookingsRepository.getById(bookingId);
 
@@ -57,34 +57,43 @@ class BookingsService {
             throw new Error("Servicio no encontrado");
         }
 
-        // Busca si el servicio ya está agregado
-        const serviceIndex = booking.services.findIndex(
-            item => item.service.toString() === serviceId.toString()
-        );
+        // Obtiene el ID aunque el servicio esté poblado
+        const serviceIndex = booking.services.findIndex((item) => {
+            const currentServiceId =
+                item.service?._id?.toString() ??
+                item.service?.toString();
+
+            return currentServiceId === serviceId.toString();
+        });
+
+        // Prepara las relaciones usando únicamente sus IDs
+        const services = booking.services.map((item) => ({
+            service: item.service?._id ?? item.service,
+            quantity: item.quantity
+        }));
 
         if (serviceIndex !== -1) {
-            // Impide superar el máximo permitido por servicio.
-            if (booking.services[serviceIndex].quantity >= 10) {
+            // Impide superar el máximo permitido
+            if (services[serviceIndex].quantity >= 10) {
                 throw new Error(
                     "La cantidad máxima por servicio es 10"
                 );
             }
 
-            // Aumenta la cantidad
-            booking.services[serviceIndex].quantity += 1;
+            // Incrementa la cantidad del servicio existente
+            services[serviceIndex].quantity += 1;
         } else {
-            // Agrega el servicio con la cantidad inicial.
-            booking.services.push({
+            // Agrega el servicio con cantidad inicial de 1
+            services.push({
                 service: serviceId,
                 quantity: 1
             });
         }
 
-        // Guarda la reserva actualizada
-        return await this.bookingsRepository.update(
-            bookingId,
-            booking
-        );
+        // Actualiza solamente los servicios de la reserva
+        return await this.bookingsRepository.update(bookingId, {
+            services
+        });
     }
 }
 
