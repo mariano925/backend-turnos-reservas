@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Valida el formato y la existencia de la fecha.
@@ -59,4 +58,21 @@ export const bookingServiceParamsSchema = z.object({
             /^[a-f\d]{24}$/i,
             "El ID del servicio no es válido"
         )
+}).strict();
+
+// Valida el ID de una reserva para operaciones individuales.
+export const bookingIdParamsSchema = z.object({
+    bid: z.string()
+        .regex(
+            /^[a-f\d]{24}$/i,
+            "El ID de la reserva no es válido"
+        )
+}).strict();
+
+// Valida la cantidad específica de un servicio en una reserva.
+export const setBookingServiceQuantitySchema = z.object({
+    quantity: z.number()
+        .int("La cantidad debe ser un número entero")
+        .min(1, "La cantidad mínima es 1")
+        .max(10, "La cantidad máxima por servicio es 10")
 }).strict();

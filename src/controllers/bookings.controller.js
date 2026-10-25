@@ -1,9 +1,8 @@
-
 import BookingsService from "../services/bookings.service.js";
 import BookingsRepository from "../repositories/bookings.repository.js";
 import ServicesRepository from "../repositories/services.repository.js";
 
-// Instancias
+// Instancias de las capas.
 const bookingsRepository = new BookingsRepository();
 const servicesRepository = new ServicesRepository();
 
@@ -12,40 +11,57 @@ const bookingsService = new BookingsService(
     servicesRepository
 );
 
-// Identifica errores de datos rechazados por Mongoose.
-const isValidationError = (error) =>
-    error.name === "ValidationError" ||
-    error.name === "CastError";
+// Responde según el tipo de error producido.
+const handleBookingError = (res, error) => {
+    if (
+        error.name === "CastError" ||
+        error.name === "ValidationError"
+    ) {
+        return res.status(400).json({
+            error: error.message
+        });
+    }
 
-// Crea una reserva
+    const notFoundMessages = [
+        "Reserva no encontrada",
+        "Servicio no encontrado",
+        "Servicio no asociado a la reserva"
+    ];
+
+    if (notFoundMessages.includes(error.message)) {
+        return res.status(404).json({
+            error: error.message
+        });
+    }
+
+    return res.status(500).json({
+        error: error.message
+    });
+};
+
+// Crea una reserva.
 export const createBooking = async (req, res) => {
     try {
         const newBooking = await bookingsService.createBooking(req.body);
 
-        res.status(201).json(newBooking);
-
+        return res.status(201).json(newBooking);
     } catch (error) {
-        if (
-            error.message.startsWith("Falta el campo:") ||
-            isValidationError(error)
-        ) {
+        if (error.message.startsWith("Falta el campo:")) {
             return res.status(400).json({
                 error: error.message
             });
         }
 
-        res.status(500).json({
-            error: error.message
-        });
+        return handleBookingError(res, error);
     }
 };
 
-// Busca una reserva por ID
+// Consulta una reserva por ID.
 export const getBookingById = async (req, res) => {
     try {
-        const id = req.params.bid;
-
-        const booking = await bookingsService.getBookingById(id);
+        const booking = await bookingsService.getBookingById(
+            req.params.bid
+        );
 
         if (!booking) {
             return res.status(404).json({
@@ -53,62 +69,89 @@ export const getBookingById = async (req, res) => {
             });
         }
 
-        res.status(200).json(booking);
-
+        return res.status(200).json(booking);
     } catch (error) {
-        if (error.name === "CastError") {
-            return res.status(400).json({
-                error: "ID de reserva inválido"
-            });
-        }
-
-        res.status(500).json({
-            error: error.message
-        });
+        return handleBookingError(res, error);
     }
 };
 
-// Agrega un servicio a una reserva
+// Agrega un servicio o incrementa su cantidad.
 export const addServiceToBooking = async (req, res) => {
     try {
-        const bookingId = req.params.bid;
-        const serviceId = req.params.sid;
-
         const updatedBooking =
             await bookingsService.addServiceToBooking(
-                bookingId,
-                serviceId
+                req.params.bid,
+                req.params.sid
             );
 
-        res.status(200).json(updatedBooking);
-
+        return res.status(200).json(updatedBooking);
     } catch (error) {
-        if (error.name === "CastError") {
-            return res.status(400).json({
-                error: "ID de reserva o servicio inválido"
-            });
-        }
-
         if (
-            error.name === "ValidationError" ||
-            error.message === "La cantidad máxima por servicio es 10"
+            error.message ===
+            "La cantidad máxima por servicio es 10"
         ) {
             return res.status(400).json({
                 error: error.message
             });
         }
 
-        if (
-            error.message === "Reserva no encontrada" ||
-            error.message === "Servicio no encontrado"
-        ) {
-            return res.status(404).json({
-                error: error.message
-            });
-        }
+        return handleBookingError(res, error);
+    }
+};
 
-        res.status(500).json({
-            error: error.message
-        });
+// Quita un servicio de una reserva.
+export const removeServiceFromBooking = async (req, res) => {
+    try {
+        const updatedBooking =
+            await bookingsService.removeServiceFromBooking(
+                req.params.bid,
+                req.params.sid
+            );
+
+        return res.status(200).json(updatedBooking);
+    } catch (error) {
+        return handleBookingError(res, error);
+    }
+};
+
+// Establece una cantidad concreta para un servicio asociado.
+export const setBookingServiceQuantity = async (req, res) => {
+    try {
+        const updatedBooking =
+            await bookingsService.setBookingServiceQuantity(
+                req.params.bid,
+                req.params.sid,
+                req.body.quantity
+            );
+
+        return res.status(200).json(updatedBooking);
+    } catch (error) {
+        return handleBookingError(res, error);
+    }
+};
+
+// Quita todos los servicios asociados a una reserva.
+export const clearBookingServices = async (req, res) => {
+    try {
+        const updatedBooking =
+            await bookingsService.clearBookingServices(
+                req.params.bid
+            );
+
+        return res.status(200).json(updatedBooking);
+    } catch (error) {
+        return handleBookingError(res, error);
+    }
+};
+
+// Elimina una reserva completa.
+export const deleteBooking = async (req, res) => {
+    try {
+        const deletedBooking =
+            await bookingsService.deleteBooking(req.params.bid);
+
+        return res.status(200).json(deletedBooking);
+    } catch (error) {
+        return handleBookingError(res, error);
     }
 };

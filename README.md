@@ -1,53 +1,134 @@
 # Sistema Backend de Turnos y Reservas
 
-API REST desarrollada con Node.js y Express para gestionar servicios de barbería y reservas, utilizando MongoDB Atlas como persistencia principal. El proyecto incorpora validaciones con Zod, vistas renderizadas con Handlebars y actualizaciones en tiempo real con Socket.IO.
+## Descripción
+
+API REST desarrollada con Node.js y Express para gestionar los servicios de una barbería y sus reservas.
+
+El proyecto utiliza MongoDB Atlas como base de datos y Mongoose para definir los modelos y realizar las operaciones de persistencia. También incorpora validaciones con Zod, arquitectura en capas, vistas con Express Handlebars y actualizaciones en tiempo real mediante Socket.IO.
+
+El sistema permite administrar servicios, crear y consultar reservas, asociar servicios existentes y actualizar las cantidades solicitadas. Las relaciones entre reservas y servicios se almacenan mediante referencias `ObjectId`.
 
 ## Tecnologías utilizadas
 
-- Node.js y Express.
-- ECMAScript Modules (ESM).
-- MongoDB Atlas y Mongoose.
-- Zod para validar los datos de entrada.
-- Express Handlebars para renderizar vistas HTML.
-- Socket.IO para comunicar cambios en tiempo real.
-- dotenv para gestionar variables de entorno.
+- **Node.js y Express:** ejecución del servidor y definición de la API REST.
+- **ECMAScript Modules (ESM):** organización e importación de módulos JavaScript.
+- **MongoDB Atlas:** persistencia de los datos.
+- **Mongoose:** modelos, esquemas y operaciones sobre MongoDB.
+- **Zod:** validación de los datos recibidos por la API.
+- **Express Handlebars:** generación de vistas HTML.
+- **Socket.IO:** comunicación en tiempo real entre el servidor y los navegadores.
+- **dotenv:** lectura de variables de entorno.
 
-## Arquitectura
+## Arquitectura del proyecto
 
-El proyecto utiliza una arquitectura en capas para separar las responsabilidades:
+El proyecto utiliza una arquitectura en capas para separar las solicitudes HTTP, la lógica de negocio y el acceso a los datos.
 
 ```text
-Router
-  ↓
-Controller
-  ↓
-Service
-  ↓
-Repository
-  ↓
-DAO
-  ↓
-Mongoose
-  ↓
-MongoDB Atlas
+Cliente HTTP o navegador
+          |
+          v
+        Router
+          |
+          v
+       Controller
+          |
+          v
+        Service
+          |
+          v
+      Repository
+          |
+          v
+          DAO
+          |
+          v
+       Mongoose
+          |
+          v
+     MongoDB Atlas
 ```
 
+Responsabilidades de cada capa:
+
 - **Router:** define los endpoints y aplica los middlewares de validación.
-- **Controller:** coordina las solicitudes HTTP y las respuestas.
-- **Service:** implementa la lógica de negocio.
-- **Repository:** centraliza el acceso a los datos.
-- **DAO:** ejecuta las operaciones de persistencia mediante Mongoose.
-- **Model:** define los esquemas y las validaciones de MongoDB.
+- **Controller:** recibe las solicitudes HTTP y devuelve las respuestas correspondientes.
+- **Service:** implementa la lógica de negocio y verifica las condiciones necesarias para las operaciones.
+- **Repository:** actúa como intermediario entre la lógica de negocio y el acceso a los datos.
+- **DAO:** ejecuta las consultas y operaciones de persistencia mediante Mongoose.
+- **Model:** define la estructura de los documentos y las reglas de validación del esquema.
+
+Las vistas recuperan información a través de los servicios y repositorios, manteniendo separadas las responsabilidades.
+
+## Estructura de carpetas
+
+```text
+Backend1-Mariano/
+├── public/
+│   ├── css/
+│   │   └── styles.css
+│   └── js/
+│       ├── bookings.js
+│       ├── services.js
+│       └── socket.js
+├── src/
+│   ├── config/
+│   │   ├── database.config.js
+│   │   └── env.config.js
+│   ├── controllers/
+│   │   ├── bookings.controller.js
+│   │   ├── services.controller.js
+│   │   └── views.controller.js
+│   ├── dao/
+│   │   ├── bookings.dao.js
+│   │   └── services.dao.js
+│   ├── middlewares/
+│   │   └── validate.middleware.js
+│   ├── models/
+│   │   ├── booking.model.js
+│   │   ├── message.model.js
+│   │   └── service.model.js
+│   ├── repositories/
+│   │   ├── bookings.repository.js
+│   │   └── services.repository.js
+│   ├── routes/
+│   │   ├── bookings.router.js
+│   │   ├── services.router.js
+│   │   └── views.router.js
+│   ├── services/
+│   │   ├── bookings.service.js
+│   │   └── services.service.js
+│   ├── validations/
+│   │   ├── booking.schema.js
+│   │   └── service.schema.js
+│   ├── views/
+│   │   ├── layouts/
+│   │   │   └── main.handlebars
+│   │   ├── availability.handlebars
+│   │   └── services.handlebars
+│   ├── app.js
+│   └── server.js
+├── .env.example
+├── .gitignore
+├── package.json
+├── package-lock.json
+└── README.md
+```
+
+El archivo `.env` y la carpeta `node_modules` se utilizan localmente y no deben publicarse en el repositorio.
 
 ## Requisitos previos
 
+Para ejecutar el proyecto se necesita:
+
 - Node.js y npm instalados.
 - Una cuenta y un clúster configurado en MongoDB Atlas.
-- Una URI de conexión válida, con el usuario y los permisos necesarios para acceder a la base de datos.
+- Una URI de conexión válida.
+- Un usuario de base de datos con permisos suficientes.
+- Acceso de red configurado en MongoDB Atlas.
 
 ## Instalación
 
-Cloná el repositorio y entrá en la carpeta del proyecto:
+Cloná el repositorio y entrá en su carpeta:
 
 ```bash
 git clone https://github.com/mariano925/backend-turnos-reservas.git
@@ -62,15 +143,15 @@ npm install
 
 ## Variables de entorno
 
-Creá el archivo `.env` a partir de `.env.example`.
+La configuración se administra mediante variables de entorno. El archivo `.env` se utiliza localmente y no debe publicarse en el repositorio.
 
-En PowerShell:
+Creá tu archivo `.env` a partir del ejemplo:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Editá `.env` con la configuración local:
+Configurá las variables necesarias:
 
 ```env
 PORT=8080
@@ -78,11 +159,11 @@ NODE_ENV=development
 MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/Backend1-Mariano
 ```
 
-Reemplazá los valores de ejemplo de `MONGODB_URI` por la URI de tu clúster de MongoDB Atlas. La URI mostrada arriba es ficticia y no permite conectarse a una base de datos real.
+La URI anterior es ficticia. Reemplazala por la URI real de tu clúster de MongoDB Atlas y mantené las credenciales únicamente en tu archivo `.env` local.
 
-Verificá que MongoDB Atlas tenga configurados el usuario de base de datos y los permisos de acceso de red necesarios.
+El proyecto utiliza `PORT` y `MONGODB_URI` para configurar el servidor y la conexión con la base de datos. `NODE_ENV` identifica el entorno de ejecución.
 
-**Importante:** no publiques el archivo `.env`, contraseñas, URI reales ni otras credenciales. El repositorio incluye `.env.example` para documentar las variables necesarias sin exponer datos sensibles.
+**Importante:** no publiques contraseñas, URI reales, tokens ni otros datos sensibles. El archivo `.env.example` debe orientar la configuración sin incluir credenciales reales.
 
 ## Ejecución
 
@@ -92,48 +173,52 @@ Iniciá el servidor con:
 npm start
 ```
 
-La aplicación se conecta a MongoDB Atlas antes de comenzar a escuchar solicitudes. Con la configuración predeterminada, el servidor queda disponible en:
+La aplicación establece la conexión con MongoDB Atlas antes de comenzar a escuchar solicitudes.
+
+Con el puerto predeterminado, el servidor queda disponible en:
 
 ```text
 http://localhost:8080
 ```
 
-Si la conexión falla, verificá las variables de entorno y la configuración de acceso de MongoDB Atlas.
+Si el servidor no puede conectarse a MongoDB Atlas, verificá la URI, el usuario de base de datos y los permisos de red configurados en Atlas.
 
 ## API REST
 
 ### Servicios
 
+El endpoint `GET /api/services` permite consultar los servicios registrados y aplicar filtros, paginación y ordenamiento.
+
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/services` | Lista servicios con filtros, ordenamiento y paginación. |
-| GET | `/api/services/:sid` | Consulta un servicio por ID. |
+| GET | `/api/services` | Lista servicios con filtros, paginación y ordenamiento. |
+| GET | `/api/services/:sid` | Consulta un servicio por su identificador. |
 | POST | `/api/services` | Crea un servicio. |
 | PUT | `/api/services/:sid` | Actualiza uno o varios campos de un servicio. |
 | DELETE | `/api/services/:sid` | Elimina un servicio. |
 
-### Filtros, ordenamiento y paginación
+### Filtros, paginación y ordenamiento
 
-El endpoint `GET /api/services` admite los siguientes parámetros:
+El endpoint `GET /api/services` acepta los siguientes parámetros:
 
 | Parámetro | Descripción |
 |---|---|
 | `category` | Filtra por categoría. |
 | `available` | Filtra por disponibilidad: `true` o `false`. |
-| `page` | Selecciona la página. |
-| `limit` | Define la cantidad de resultados por página, entre 1 y 100. |
-| `sortBy` | Ordena por `name`, `price`, `duration` o `category`. |
+| `page` | Indica la página solicitada. |
+| `limit` | Cantidad de resultados por página, entre 1 y 100. |
+| `sortBy` | Campo de ordenamiento: `name`, `price`, `duration` o `category`. |
 | `order` | Orden ascendente (`asc`) o descendente (`desc`). |
 
-Ejemplo:
+Ejemplo de consulta:
 
 ```http
 GET /api/services?category=Barberia&available=true&page=1&limit=5&sortBy=price&order=asc
 ```
 
-La respuesta paginada incluye `services`, `total`, `page`, `limit`, `totalPages`, `hasPrevPage` y `hasNextPage`.
+La respuesta incluye el listado `services` y los metadatos `total`, `page`, `limit`, `totalPages`, `hasPrevPage` y `hasNextPage`.
 
-Los parámetros inválidos generan una respuesta HTTP `400 Bad Request`.
+La paginación se implementa mediante `skip` y `limit` de Mongoose. El ordenamiento utiliza una lista permitida de campos.
 
 ### Crear un servicio
 
@@ -144,7 +229,7 @@ POST /api/services
 Content-Type: application/json
 ```
 
-Cuerpo de ejemplo:
+Ejemplo de cuerpo JSON:
 
 ```json
 {
@@ -157,7 +242,7 @@ Cuerpo de ejemplo:
 }
 ```
 
-La creación requiere nombre, descripción, duración, precio, categoría y disponibilidad.
+La creación requiere nombre, descripción, duración, precio, categoría y disponibilidad, de acuerdo con el esquema de validación.
 
 ### Actualizar un servicio
 
@@ -176,15 +261,31 @@ Ejemplo de actualización parcial:
 }
 ```
 
-El identificador debe reemplazarse por el ID real del servicio. La actualización admite campos parciales y no permite un cuerpo vacío.
+Reemplazá `ID_DEL_SERVICIO` por el identificador de un servicio existente. La actualización permite enviar uno o varios campos válidos y rechaza un cuerpo vacío.
 
-### Reservas
+### Eliminar un servicio
+
+Endpoint:
+
+```http
+DELETE /api/services/ID_DEL_SERVICIO
+```
+
+La respuesta devuelve el documento eliminado. Si el servicio no existe, la API responde con `404 Not Found`.
+
+## Reservas
+
+Las reservas permiten registrar los datos del cliente, la fecha, la hora y el estado. Los servicios se asocian después de crear la reserva.
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | POST | `/api/bookings` | Crea una reserva sin servicios asociados. |
-| GET | `/api/bookings/:bid` | Consulta una reserva y recupera los datos completos de sus servicios mediante `populate`. |
-| POST | `/api/bookings/:bid/services/:sid` | Agrega un servicio existente a una reserva. |
+| GET | `/api/bookings/:bid` | Consulta una reserva con los datos de sus servicios mediante `populate`. |
+| POST | `/api/bookings/:bid/services/:sid` | Agrega un servicio o incrementa su cantidad. |
+| PATCH | `/api/bookings/:bid/services/:sid` | Establece una cantidad específica para un servicio asociado. |
+| DELETE | `/api/bookings/:bid/services/:sid` | Elimina un servicio de una reserva. |
+| DELETE | `/api/bookings/:bid/services` | Quita todos los servicios asociados y conserva la reserva. |
+| DELETE | `/api/bookings/:bid` | Elimina una reserva completa. |
 
 ### Crear una reserva
 
@@ -195,7 +296,7 @@ POST /api/bookings
 Content-Type: application/json
 ```
 
-Cuerpo de ejemplo:
+Ejemplo de cuerpo JSON:
 
 ```json
 {
@@ -207,7 +308,7 @@ Cuerpo de ejemplo:
 }
 ```
 
-La reserva se crea inicialmente sin servicios. Los servicios se asocian mediante el endpoint específico.
+La reserva se crea inicialmente con `services: []`.
 
 ### Asociar un servicio a una reserva
 
@@ -217,66 +318,147 @@ Endpoint:
 POST /api/bookings/ID_DE_LA_RESERVA/services/ID_DEL_SERVICIO
 ```
 
-Reemplazá ambos identificadores por los IDs existentes. La operación agrega una unidad del servicio; si el servicio ya estaba asociado, incrementa su cantidad, respetando el máximo configurado.
+Reemplazá ambos identificadores por los IDs reales. La operación agrega una unidad del servicio. Si el servicio ya está asociado a la reserva, incrementa su cantidad.
+
+La cantidad permitida es de 1 a 10 unidades por servicio asociado.
+
+### Establecer una cantidad específica
+
+Endpoint:
+
+```http
+PATCH /api/bookings/ID_DE_LA_RESERVA/services/ID_DEL_SERVICIO
+Content-Type: application/json
+```
+
+Ejemplo de cuerpo JSON:
+
+```json
+{
+  "quantity": 3
+}
+```
+
+La cantidad debe ser un entero entre 1 y 10. El servicio debe estar asociado a la reserva.
+
+### Eliminar un servicio de una reserva
+
+Endpoint:
+
+```http
+DELETE /api/bookings/ID_DE_LA_RESERVA/services/ID_DEL_SERVICIO
+```
+
+Esta operación elimina la asociación del servicio con la reserva, pero no elimina el servicio del catálogo.
+
+Si el servicio no está asociado a esa reserva, la API responde con `404 Not Found`.
+
+### Vaciar los servicios de una reserva
+
+Endpoint:
+
+```http
+DELETE /api/bookings/ID_DE_LA_RESERVA/services
+```
+
+Elimina todas las asociaciones de servicios. La reserva permanece registrada con su información de cliente, fecha, hora y estado.
+
+### Eliminar una reserva
+
+Endpoint:
+
+```http
+DELETE /api/bookings/ID_DE_LA_RESERVA
+```
+
+Elimina el documento de la reserva. La respuesta devuelve el documento eliminado; si la reserva no existe, responde con `404 Not Found`.
 
 ## Validaciones con Zod y Mongoose
 
-El middleware reutilizable de validación está ubicado en `src/middlewares/validate.middleware.js`. Los esquemas se encuentran en `src/validations/`.
+Las validaciones de entrada se definen en `src/validations/`. El middleware reutilizable se encuentra en `src/middlewares/validate.middleware.js`.
 
-**Servicios:**
+El middleware utiliza `safeParse()` para comprobar los datos antes de ejecutar el controlador. Si la validación falla, la API devuelve `400 Bad Request`.
+
+### Validaciones de servicios
 
 - Nombre, descripción y categoría obligatorios y no vacíos.
-- Duración entre 5 y 240 minutos.
-- Precio entre 0 y 1.000.000.
+- Duración dentro del rango establecido por el esquema.
+- Precio dentro del rango establecido por el esquema.
 - Disponibilidad de tipo booleano.
-- Actualizaciones parciales, con al menos un campo válido y sin propiedades adicionales.
+- Actualizaciones parciales con al menos un campo válido.
+- Rechazo de propiedades no permitidas cuando lo establece el esquema.
 
-**Reservas:**
+### Validaciones de reservas
 
-- Nombre y correo electrónico válidos.
+- Nombre del cliente obligatorio.
+- Correo electrónico con formato válido.
 - Fecha real con formato `YYYY-MM-DD`.
 - Hora con formato de 24 horas `HH:mm`.
-- Estado restringido a `pending`, `confirmed` o `cancelled`.
-- Identificadores con formato ObjectId validados en la operación de asociación de servicios.
+- Estado limitado a `pending`, `confirmed` o `cancelled`.
+- Identificadores de reservas y servicios validados en las operaciones correspondientes.
+- Cantidad entera entre 1 y 10 al actualizar una asociación.
 
-Las validaciones de Zod se complementan con las restricciones de los esquemas de Mongoose.
+Las reglas de Zod se complementan con las validaciones de los modelos de Mongoose. Las operaciones de actualización utilizan `runValidators: true` para aplicar las validaciones del esquema cuando corresponde.
 
-## Relaciones y populate
+Zod comprueba la estructura y los valores recibidos. La capa de servicio verifica las condiciones de negocio, como la existencia de la reserva y del servicio, y la validez de la asociación solicitada.
 
-Las reservas guardan referencias `ObjectId` a los documentos de servicios, junto con la cantidad solicitada. No almacenan una copia completa del servicio como dato embebido.
+## Relaciones entre reservas y servicios
 
-Al consultar una reserva mediante `GET /api/bookings/:bid`, el DAO utiliza:
+La relación entre reservas y servicios se implementa mediante referencias `ObjectId`.
+
+Cada elemento del array `services` de una reserva contiene:
+
+- `service`: referencia al documento existente en la colección de servicios.
+- `quantity`: cantidad solicitada de ese servicio.
+
+La reserva no guarda una copia completa del servicio. Los datos principales permanecen en el documento del servicio.
+
+### Uso de populate
+
+El DAO de reservas utiliza:
 
 ```javascript
 .populate("services.service")
 ```
 
-De esta manera, la respuesta incluye los datos de la reserva y los documentos de los servicios relacionados, junto con sus cantidades.
+Esto permite que `GET /api/bookings/:bid` devuelva los datos de cada servicio relacionado junto con su cantidad.
+
+La respuesta puede incluir el nombre, la descripción, la duración, el precio y la categoría del servicio asociado. Así, el cliente de la API puede consultar una reserva sin realizar manualmente una solicitud independiente por cada servicio.
 
 ## Vistas con Handlebars
 
-Las vistas utilizan datos recuperados de MongoDB a través de los servicios y repositorios.
+El proyecto incorpora vistas HTML renderizadas con Express Handlebars.
 
 | Ruta | Descripción |
 |---|---|
-| `/views/services` | Muestra los servicios, precios, duración y disponibilidad. |
-| `/views/availability` | Muestra las reservas y sus servicios asociados. |
+| `/views/services` | Muestra los servicios y permite crearlos, editarlos y eliminarlos desde la interfaz. |
+| `/views/availability` | Muestra las reservas y permite crearlas, asociar servicios, actualizar cantidades y administrar las asociaciones. |
 
-Las páginas comparten el diseño principal definido en `src/views/layouts/main.handlebars`.
+La pantalla de reservas permite quitar un servicio, quitar todas las asociaciones o eliminar una reserva completa.
+
+Las vistas utilizan información recuperada desde MongoDB mediante las capas de servicio y repositorio.
+
+El diseño compartido se encuentra en `src/views/layouts/main.handlebars`. Los estilos están en `public/css/styles.css`.
+
+Los archivos JavaScript de las interfaces son:
+
+- `public/js/services.js`: gestiona las operaciones de servicios desde la pantalla.
+- `public/js/bookings.js`: gestiona las operaciones de reservas desde la pantalla.
+- `public/js/socket.js`: recibe las actualizaciones de servicios en tiempo real.
 
 ## Comunicación en tiempo real con Socket.IO
 
-El servidor utiliza Socket.IO para notificar cambios en los servicios.
+Socket.IO permite comunicar los cambios realizados sobre los servicios a los navegadores conectados.
 
-Cuando se crea, actualiza o elimina un servicio mediante la API, el servidor emite el evento `servicesUpdated`. El archivo `public/js/socket.js` escucha ese evento y actualiza la lista de servicios sin recargar la página.
+Después de crear, actualizar o eliminar un servicio mediante las operaciones correspondientes de la aplicación, el servidor emite el evento `servicesUpdated`. El archivo `public/js/socket.js` escucha ese evento y actualiza la lista de servicios sin recargar manualmente la página.
 
-La funcionalidad fue comprobada en el navegador mediante operaciones de creación y eliminación de un servicio temporal.
+La funcionalidad se comprobó en el navegador mediante la creación y eliminación de un servicio temporal.
 
 ## Pruebas manuales
 
-Las operaciones pueden probarse con Postman, Thunder Client o PowerShell.
+Los endpoints pueden probarse con Postman, Thunder Client o PowerShell. Para las pruebas de escritura, conviene utilizar datos temporales y eliminar los registros creados al terminar.
 
-Ejemplos de consultas:
+Ejemplos de consultas en PowerShell:
 
 ```powershell
 # Listar servicios
@@ -285,30 +467,39 @@ Invoke-RestMethod "http://localhost:8080/api/services"
 # Consultar un servicio existente
 Invoke-RestMethod "http://localhost:8080/api/services/ID_DEL_SERVICIO"
 
-# Consultar una reserva y sus servicios asociados
+# Consultar una reserva con sus servicios asociados
 Invoke-RestMethod "http://localhost:8080/api/bookings/ID_DE_LA_RESERVA"
 ```
 
-También conviene probar la creación, actualización y eliminación de servicios, los filtros de `GET /api/services`, la asociación de servicios a reservas y los casos de error.
+Para comprobar las operaciones de escritura, se pueden utilizar `POST`, `PUT`, `PATCH` y `DELETE`, según el endpoint.
 
-Entre los errores contemplados se encuentran los datos incompletos, los identificadores mal formados y los recursos inexistentes.
+También deben verificarse los casos de error, como los datos incompletos, los identificadores mal formados y los recursos inexistentes.
 
 ## Códigos de respuesta HTTP
 
 | Código | Significado |
 |---|---|
 | `200 OK` | Operación realizada correctamente. |
-| `201 Created` | Recurso creado. |
-| `400 Bad Request` | Datos o identificadores inválidos. |
-| `404 Not Found` | Recurso inexistente. |
+| `201 Created` | Recurso creado correctamente. |
+| `400 Bad Request` | Datos inválidos o identificadores con formato incorrecto. |
+| `404 Not Found` | Recurso inexistente o servicio no asociado a la reserva. |
 | `500 Internal Server Error` | Error inesperado del servidor. |
+
+Los códigos concretos dependen del endpoint y del tipo de operación.
 
 ## Seguridad y repositorio
 
-El repositorio debe incluir el código fuente, `package.json`, `package-lock.json`, `README.md`, `.gitignore` y `.env.example`.
+El repositorio incluye el código fuente, `package.json`, `package-lock.json`, `README.md`, `.gitignore` y `.env.example`.
 
-No se deben subir `.env`, `node_modules`, credenciales reales ni archivos temporales.
+No deben publicarse:
 
-## Mejoras futuras
+- `.env` con la configuración local y las credenciales.
+- `node_modules`.
+- Contraseñas, URI reales, tokens u otros datos sensibles.
+- Archivos temporales que no formen parte del proyecto.
 
-Entre las posibles mejoras se encuentran ampliar las operaciones de gestión de reservas, incorporar pruebas automatizadas y agregar controles adicionales para administrar la disponibilidad de los turnos.
+El archivo `.env.example` sirve como guía para configurar el proyecto en otro entorno sin exponer credenciales reales.
+
+## Posibles mejoras futuras
+
+Como mejoras futuras se podrían incorporar pruebas automatizadas, controles adicionales sobre la disponibilidad horaria de los turnos y otras funcionalidades para administrar las reservas.

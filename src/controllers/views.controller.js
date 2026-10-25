@@ -33,11 +33,15 @@ export const getServicesView = async (req, res) => {
 // Renderiza las reservas registradas.
 export const getAvailabilityView = async (req, res) => {
     try {
-        const bookings = await bookingsService.getAllBookings();
+        const [bookings, services] = await Promise.all([
+            bookingsService.getAllBookings(),
+            servicesService.getServices()
+        ]);
 
         res.render("availability", {
             title: "Disponibilidad de turnos",
-            bookings
+            bookings,
+            services
         });
     } catch (error) {
         console.error("Error al cargar la vista de reservas:", error.message);

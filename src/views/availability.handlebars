@@ -1,59 +1,218 @@
-<section class="page-section">
-    <h2>Disponibilidad de turnos</h2>
-    <p class="page-description">
-        Consultá las reservas registradas y sus estados actuales.
-    </p>
+<section class="page-header">
+  <h1>Gestión de reservas</h1>
+  <p>Creá reservas y administrá los servicios asociados a cada una.</p>
+</section>
 
-    <!-- Reservas registradas en MongoDB -->
-    <div class="bookings-list">
-        {{#each bookings}}
-            <article class="booking-card">
-                <div class="booking-header">
-                    <h3>{{this.clientName}}</h3>
-                    <span class="status-badge status-{{this.status}}">
-                        {{this.status}}
-                    </span>
+<section class="booking-create-section">
+  <h2>Crear reserva</h2>
+
+  <form id="booking-create-form" class="management-form">
+    <div class="management-form-grid">
+      <div class="form-field">
+        <label for="clientName">Nombre del cliente</label>
+        <input
+          id="clientName"
+          name="clientName"
+          type="text"
+          required
+          maxlength="100"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="clientEmail">Correo electrónico</label>
+        <input
+          id="clientEmail"
+          name="clientEmail"
+          type="email"
+          required
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="bookingDate">Fecha</label>
+        <input
+          id="bookingDate"
+          name="date"
+          type="date"
+          required
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="bookingTime">Horario</label>
+        <input
+          id="bookingTime"
+          name="time"
+          type="time"
+          required
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="bookingStatus">Estado</label>
+        <select id="bookingStatus" name="status">
+          <option value="pending" selected>Pendiente</option>
+          <option value="confirmed">Confirmada</option>
+          <option value="cancelled">Cancelada</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="management-button" type="submit">
+      Crear reserva
+    </button>
+  </form>
+</section>
+
+<p
+  id="booking-feedback"
+  class="management-feedback"
+  role="status"
+  aria-live="polite"
+></p>
+
+<section class="bookings-section">
+  <h2>Reservas registradas</h2>
+
+  {{#each bookings}}
+    <article class="booking-card" data-booking-id="{{this._id}}">
+      <div class="booking-card-header">
+        <div>
+          <h3>{{this.clientName}}</h3>
+          <p>{{this.clientEmail}}</p>
+        </div>
+
+        <span class="booking-status">{{this.status}}</span>
+      </div>
+
+      <div class="booking-details">
+        <p><strong>Fecha:</strong> {{this.date}}</p>
+        <p><strong>Horario:</strong> {{this.time}}</p>
+        <p><strong>ID:</strong> {{this._id}}</p>
+      </div>
+
+      <h4>Servicios asociados</h4>
+
+      {{#if this.services.length}}
+        <div class="booking-service-list">
+          {{#each this.services}}
+            <div
+              class="booking-service-item"
+              data-service-id="{{this.service._id}}"
+            >
+              <div>
+                <h5>{{this.service.name}}</h5>
+                <p>{{this.service.description}}</p>
+                <p>Duración: {{this.service.duration}} minutos</p>
+                <p>Precio unitario: ${{this.service.price}}</p>
+              </div>
+
+              <form
+                class="booking-quantity-form"
+                data-booking-id="{{../this._id}}"
+                data-service-id="{{this.service._id}}"
+              >
+                <div class="form-field">
+                  <label for="quantity-{{../this._id}}-{{this.service._id}}">
+                    Cantidad (1 a 10)
+                  </label>
+
+                  <input
+                    id="quantity-{{../this._id}}-{{this.service._id}}"
+                    name="quantity"
+                    type="number"
+                    min="1"
+                    max="10"
+                    step="1"
+                    value="{{this.quantity}}"
+                    required
+                  >
                 </div>
 
-                <dl class="booking-details">
-                    <div>
-                        <dt>Correo</dt>
-                        <dd>{{this.clientEmail}}</dd>
-                    </div>
-                    <div>
-                        <dt>Fecha</dt>
-                        <dd>{{this.date}}</dd>
-                    </div>
-                    <div>
-                        <dt>Hora</dt>
-                        <dd>{{this.time}}</dd>
-                    </div>
-                </dl>
+                <button class="management-button" type="submit">
+                  Guardar cantidad
+                </button>
+              </form>
 
-                <!-- Servicios asociados a la reserva -->
-                <h4>Servicios solicitados</h4>
+              <button
+                class="management-button management-button-secondary"
+                type="button"
+                data-booking-action="remove-service"
+                data-booking-id="{{../this._id}}"
+                data-service-id="{{this.service._id}}"
+              >
+                Quitar servicio
+              </button>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="empty-state">
+          Esta reserva todavía no tiene servicios asociados.
+        </p>
+      {{/if}}
 
-                {{#if this.services.length}}
-                    <ul class="booking-services">
-                        {{#each this.services}}
-                            <li>
-                                {{#if this.service}}
-                                    {{this.service.name}}
-                                {{else}}
-                                    Servicio no disponible
-                                {{/if}}
-                                — Cantidad: {{this.quantity}}
-                            </li>
-                        {{/each}}
-                    </ul>
-                {{else}}
-                    <p>Esta reserva todavía no tiene servicios asociados.</p>
-                {{/if}}
-            </article>
-        {{else}}
-            <p class="empty-message">
-                No hay reservas registradas.
-            </p>
-        {{/each}}
-    </div>
+      <form
+        class="booking-add-service-form"
+        data-booking-id="{{this._id}}"
+      >
+        <div class="form-field">
+          <label for="service-{{this._id}}">Agregar servicio</label>
+
+          <select id="service-{{this._id}}" name="serviceId" required>
+            <option value="">Seleccioná un servicio</option>
+
+            {{!-- Lista el catálogo enviado por el controlador. --}}
+            {{#each @root.services}}
+              <option
+                value="{{this._id}}"
+                {{#unless this.available}}disabled{{/unless}}
+              >
+                {{this.name}} — ${{this.price}}
+                {{#unless this.available}}(No disponible){{/unless}}
+              </option>
+            {{else}}
+              <option value="" disabled>
+                No se recibieron servicios del catálogo
+              </option>
+            {{/each}}
+          </select>
+
+          {{!-- Diagnóstico temporal para comprobar los datos recibidos. --}}
+          <p class="form-help">
+            Servicios recibidos por la vista: {{@root.services.length}}
+          </p>
+        </div>
+
+        <button class="management-button" type="submit">
+          Agregar servicio
+        </button>
+      </form>
+
+      <div class="booking-card-actions">
+        <button
+          class="management-button management-button-secondary"
+          type="button"
+          data-booking-action="clear-services"
+          data-booking-id="{{this._id}}"
+        >
+          Quitar todos los servicios
+        </button>
+
+        <button
+          class="management-button management-button-danger"
+          type="button"
+          data-booking-action="delete-booking"
+          data-booking-id="{{this._id}}"
+        >
+          Eliminar reserva
+        </button>
+      </div>
+    </article>
+  {{else}}
+    <p class="empty-state">Todavía no hay reservas registradas.</p>
+  {{/each}}
 </section>
+
+<script src="/js/bookings.js" defer></script>
